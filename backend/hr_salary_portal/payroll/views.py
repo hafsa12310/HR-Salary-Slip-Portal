@@ -3,11 +3,18 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework import status
 import pandas as pd
+from pymongo import MongoClient
+from django.http import HttpResponse, FileResponse
+import os
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from payroll.db_connection import db  # Import the MongoDB connection
-from django.http import HttpResponse
-import os
+from payroll.template import draw_payslip_layout
+import io
+import zipfile
+from django.core.mail import EmailMessage
+from django.conf import settings
+from .models import EmailLog
+from payroll.db_connection import db
 
 class UploadFileView(APIView):
     parser_classes = [MultiPartParser]
@@ -35,11 +42,11 @@ class UploadFileView(APIView):
                     'net_salary': row.get('net_salary', 0.00),
                 }
 
-                # Check if the employee exists in MongoDB
-                existing_employee = collection.find_one({"emp_id": employee_data['emp_id'], "email": employee_data['email']})
+                existing_employee = collection.find_one(
+                    {"emp_id": employee_data['emp_id'], "email": employee_data['email']}
+                )
 
                 if existing_employee:
-                    # If employee exists, update the record
                     try:
                         collection.update_one(
                             {"emp_id": employee_data['emp_id'], "email": employee_data['email']},
@@ -47,25 +54,40 @@ class UploadFileView(APIView):
                         )
                         print(f"Employee with emp_id {employee_data['emp_id']} updated successfully in MongoDB.")
                     except Exception as e:
-                        print("Error updating data in MongoDB:", str(e))
+                        print(f"Error updating data in MongoDB: {str(e)}")
                         return Response({"error": f"Error updating data in MongoDB: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    # If employee does not exist, insert a new record
                     try:
                         collection.insert_one(employee_data)
                         print(f"Employee with emp_id {employee_data['emp_id']} inserted successfully into MongoDB.")
                     except Exception as e:
-                        print("Error inserting data into MongoDB:", str(e))
+                        print(f"Error inserting data into MongoDB: {str(e)}")
                         return Response({"error": f"Error inserting data into MongoDB: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-                # Generate the salary slip PDF after saving employee data
-                generate_salary_slip_pdf(employee_data['emp_id'])
 
             return Response({"message": "File processed and data inserted successfully"}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            print("Exception occurred:", str(e))
+            print(f"Exception occurred: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GeneratePDFView(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            # Get all employees from MongoDB
+            employees = list(db['payroll_employee'].find())
+
+            if len(employees) == 0:
+                return Response({"message": "No employees found in the database"}, status=status.HTTP_404_NOT_FOUND)
+
+            for employee in employees:
+                generate_salary_slip_pdf(employee['emp_id'])
+
+            return Response({"message": "Payslips generated for all employees"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Exception occurred: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 def generate_salary_slip_pdf(employee_id):
     directory = 'PaySlips'
@@ -82,22 +104,101 @@ def generate_salary_slip_pdf(employee_id):
     if not employee:
         return HttpResponse("Employee not found", status=404)
 
-    print("Retrieved Employee Data:", employee)
+    print(f"Retrieved Employee Data: {employee}")
 
     file_path = os.path.join(directory, f'salary_slip_{employee_id}.pdf')
 
     c = canvas.Canvas(file_path, pagesize=letter)
     width, height = letter
 
-    # Draw the content on the PDF using the fields from the Employee model
-    c.drawString(100, height - 100, f"Salary Slip for {employee['first_name']} {employee['last_name']}")
-    c.drawString(100, height - 150, f"Employee ID: {employee['emp_id']}")
-    c.drawString(100, height - 200, f"Base Pay: {employee.get('base_pay', 0.00)}")
-    c.drawString(100, height - 250, f"Allowances: {employee.get('allowances', 0.00)}")
-    c.drawString(100, height - 300, f"Deductions: {employee.get('deductions', 0.00)}")
-    c.drawString(100, height - 350, f"Net Salary: {employee.get('net_salary', 0.00)}")
+    logo_path = "C:/Users/CC/Desktop/Unikrew Project/HR-Salary-Slip-Portal/backend/hr_salary_portal/logo.png"  # Ensure this path is correct
+    draw_payslip_layout(c, employee, width, height, logo_path)
 
-    # Save the PDF in the specified directory
     c.save()
 
     print(f"Generated PDF for employee {employee_id} at {file_path}")
+
+
+class DownloadPayslipsView(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            directory = 'PaySlips'
+
+            if not os.path.exists(directory):
+                return Response({"error": "No payslips found to download."}, status=status.HTTP_404_NOT_FOUND)
+
+            zip_buffer = io.BytesIO()
+
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                for filename in os.listdir(directory):
+                    file_path = os.path.join(directory, filename)
+                    zip_file.write(file_path, os.path.basename(file_path))
+
+            zip_buffer.seek(0)
+
+            response = FileResponse(zip_buffer, as_attachment=True, filename="payslips.zip")
+            return response
+
+        except Exception as e:
+            print(f"Exception occurred: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendPayslipsView(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            employees = list(db['payroll_employee'].find())
+            if len(employees) == 0:
+                print("No employees found in the database.")
+                return Response({"message": "No employees found in the database"}, status=status.HTTP_404_NOT_FOUND)
+
+            directory = 'PaySlips'
+
+            for employee in employees:
+                email = employee.get('email')
+                emp_id = employee.get('emp_id')
+                file_path = os.path.join(directory, f'salary_slip_{emp_id}.pdf')
+
+                if os.path.exists(file_path):
+                    try:
+                        mail = EmailMessage(
+                            subject=f"Your Payslip - {emp_id}",
+                            body="Please find your attached payslip.",
+                            from_email=settings.EMAIL_HOST_USER,
+                            to=[email],
+                        )
+                        mail.attach_file(file_path)
+                        mail.send()
+
+                        # Log the successful email sending
+                        EmailLog.objects.create(
+                            employee=emp_id,
+                            email=email,
+                            status="Sent",
+                            details=f"Payslip sent to {email} successfully."
+                        )
+
+                    except Exception as e:
+                        # Log the failed email sending
+                        print(f"Failed to send email to {email}: {str(e)}")
+                        EmailLog.objects.create(
+                            employee=emp_id,
+                            email=email,
+                            status="Failed",
+                            details=str(e)
+                        )
+                else:
+                    # Log if the PDF file is not found
+                    print(f"Payslip file {file_path} not found for {emp_id}")
+                    EmailLog.objects.create(
+                        employee=emp_id,
+                        email=email,
+                        status="Failed",
+                        details=f"Payslip file {file_path} not found."
+                    )
+
+            return Response({"message": "Emails sent."}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Exception occurred: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

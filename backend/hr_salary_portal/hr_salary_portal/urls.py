@@ -16,10 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from payroll.views import UploadFileView
+from payroll.views import UploadFileView, GeneratePDFView, DownloadPayslipsView, SendPayslipsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('api/upload/', UploadFileView.as_view(), name='file-upload'),
+    path('upload/', UploadFileView.as_view(), name='upload_file'), 
+    path('generate-pdf/', GeneratePDFView.as_view(), name='generate_pdf'),
+    path('download-payslips/', DownloadPayslipsView.as_view(), name='download_payslips'),  
+    path('send-payslips/', SendPayslipsView.as_view(), name='send_payslips'),
 ]
