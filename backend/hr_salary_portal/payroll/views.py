@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework import status
 import pandas as pd
-from pymongo import MongoClient
 from django.http import HttpResponse, FileResponse
 import os
 from reportlab.lib.pagesizes import letter
@@ -13,8 +12,13 @@ import io
 import zipfile
 from django.core.mail import EmailMessage
 from django.conf import settings
-from .models import EmailLog
 from payroll.db_connection import db
+from django.core.mail import EmailMessage
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .utils import log_email
 
 class UploadFileView(APIView):
     parser_classes = [MultiPartParser]
@@ -30,6 +34,7 @@ class UploadFileView(APIView):
 
             for _, row in df.iterrows():
                 employee_data = {
+                    'month' : row.get('month'),
                     'emp_id': row.get('emp_id'),
                     'first_name': row.get('first_name'),
                     'last_name': row.get('last_name'),
@@ -40,6 +45,7 @@ class UploadFileView(APIView):
                     'allowances': row.get('allowances', 0.00),
                     'deductions': row.get('deductions', 0.00),
                     'net_salary': row.get('net_salary', 0.00),
+                
                 }
 
                 existing_employee = collection.find_one(
@@ -149,55 +155,51 @@ class SendPayslipsView(APIView):
         try:
             employees = list(db['payroll_employee'].find())
             if len(employees) == 0:
-                print("No employees found in the database.")
                 return Response({"message": "No employees found in the database"}, status=status.HTTP_404_NOT_FOUND)
 
             directory = 'PaySlips'
+            log_details = []
 
             for employee in employees:
                 email = employee.get('email')
+                first_name = employee.get('first_name')
+                last_name = employee.get('last_name')
                 emp_id = employee.get('emp_id')
+                month = employee.get('month')
                 file_path = os.path.join(directory, f'salary_slip_{emp_id}.pdf')
 
                 if os.path.exists(file_path):
                     try:
                         mail = EmailMessage(
-                            subject=f"Your Payslip - {emp_id}",
-                            body="Please find your attached payslip.",
+                            subject=f"Payslip for the month of - {month}",
+                            body=(
+                                "Please find your Payslip attached. In case of any discrepancies, contact HR for support."
+                                "\n"
+                                "\n"
+                                "This email and any attachments are confidential and intended only for the individual named. "
+                                "If you are not the named addressee you should not disseminate, distribute or copy this email. "
+                                "Please notify the sender immediately by email if you have received this email by mistake and delete this email from your system."
+                            ),
                             from_email=settings.EMAIL_HOST_USER,
                             to=[email],
                         )
                         mail.attach_file(file_path)
                         mail.send()
 
-                        # Log the successful email sending
-                        EmailLog.objects.create(
-                            employee=emp_id,
-                            email=email,
-                            status="Sent",
-                            details=f"Payslip sent to {email} successfully."
-                        )
+                        log_message = f"Email sent to {first_name} {last_name} with status: Sent"
+                        log_email(emp_id, email, "Sent", f"Payslip sent to {email} successfully.")
 
                     except Exception as e:
-                        # Log the failed email sending
-                        print(f"Failed to send email to {email}: {str(e)}")
-                        EmailLog.objects.create(
-                            employee=emp_id,
-                            email=email,
-                            status="Failed",
-                            details=str(e)
-                        )
+                        log_message = f"Failed to send email to {email}: {str(e)}"
+                        log_email(emp_id, email, "Failed", str(e))
                 else:
-                    # Log if the PDF file is not found
-                    print(f"Payslip file {file_path} not found for {emp_id}")
-                    EmailLog.objects.create(
-                        employee=emp_id,
-                        email=email,
-                        status="Failed",
-                        details=f"Payslip file {file_path} not found."
-                    )
+                    log_message = f"Payslip file {file_path} not found for {emp_id}"
+                    log_email(emp_id, email, "Failed", f"Payslip file {file_path} not found.")
 
-            return Response({"message": "Emails sent."}, status=status.HTTP_200_OK)
+                print(log_message)
+                log_details.append(log_message)
+
+            return Response({"message": "Emails processed.", "log_details": log_details}, status=status.HTTP_200_OK)
 
         except Exception as e:
             print(f"Exception occurred: {str(e)}")

@@ -27,12 +27,21 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
+
+# settings.py
+
+MONGO_URI = 'mongodb://localhost:27017/'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_PORT = 587  
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'hafsa.172001@gmail.com'
-EMAIL_HOST_PASSWORD = 'hafsa20010417'
+EMAIL_HOST_USER = 'hafsaanis31@gmail.com'  
+EMAIL_HOST_PASSWORD = 'msit ylpz pcrj txmq'  
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
 
 
 # Application definition

@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Employee(models.Model):
+    onth = models.CharField(max_length=50)
     emp_id = models.CharField(max_length=50, primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
