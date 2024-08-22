@@ -15,10 +15,23 @@ from django.conf import settings
 from payroll.db_connection import db
 from django.core.mail import EmailMessage
 from django.conf import settings
+from hr_salary_portal.settings import db
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .utils import log_email
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 class UploadFileView(APIView):
     parser_classes = [MultiPartParser]
@@ -204,3 +217,11 @@ class SendPayslipsView(APIView):
         except Exception as e:
             print(f"Exception occurred: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+def landing_page_view(request):
+    return render(request, 'landing.html')
+
+
+

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +31,11 @@ ALLOWED_HOSTS = []
 
 
 # settings.py
+
+from pymongo import MongoClient
+
+client = MongoClient('mongodb://localhost:27017/')
+db = client['hr_salary_portal_db']
 
 MONGO_URI = 'mongodb://localhost:27017/'
 
@@ -57,6 +63,9 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, using database for session storage
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -78,7 +87,7 @@ ROOT_URLCONF = 'hr_salary_portal.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,6 +134,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+
 
 
 # Internationalization

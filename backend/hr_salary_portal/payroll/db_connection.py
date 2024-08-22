@@ -1,6 +1,5 @@
-import pymongo
+from pymongo import MongoClient
 
-url = 'mongodb://localhost:27017/'
-client = pymongo.MongoClient(url)
 
-db = client ['hr_salary_portal_db']
+client = MongoClient('mongodb://localhost:27017/')  
+db = client['hr_salary_portal_db']
