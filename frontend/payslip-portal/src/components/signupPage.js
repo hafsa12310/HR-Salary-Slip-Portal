@@ -1,95 +1,64 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './SignupPage.css';  // Import the CSS file
 
-function SignupPage() {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+function Signup() {
+  const [email, setEmail] = useState('');
+  const [password1, setPassword1] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (password1 !== password2) {
+      console.error('Passwords do not match');
+      return;
+    }
+    const response = await fetch('/api/signup/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password: password1, first_name: firstName, last_name: lastName })
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+    } else {
+      const error = await response.json();
+      console.error(error);
+    }
+  };
 
-        if (password !== confirmPassword) {
-            setError("Passwords do not match");
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://127.0.0.1:8000/signup/', {
-                firstName: firstName,  // Update to match backend
-                lastName: lastName,    // Update to match backend
-                email: email,
-                password: password,
-                confirmPassword: confirmPassword,  // Update to match backend
-            });
-
-            if (response.status === 201) {
-                navigate('/login');
-            }
-        } catch (error) {
-            setError('Signup failed. Please try again.');
-        }
-    };
-
-    return (
-        <div className="signup-page">
-            <div className="signup-form-container">
-                <div className="form-toggle">
-                    <button className="active">Sign Up</button>
-                    <button onClick={() => navigate('/login')}>Login</button>
-                </div>
-                <h2>Signup Form</h2>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <form onSubmit={handleSubmit}>
-                    <input 
-                        type="text" 
-                        placeholder="First Name" 
-                        value={firstName} 
-                        onChange={(e) => setFirstName(e.target.value)} 
-                        required
-                    />
-                    <input 
-                        type="text" 
-                        placeholder="Last Name" 
-                        value={lastName} 
-                        onChange={(e) => setLastName(e.target.value)} 
-                        required
-                    />
-                    <input 
-                        type="email" 
-                        placeholder="Email Address" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        required
-                    />
-                    <input 
-                        type="password" 
-                        placeholder="Password" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                        required
-                    />
-                    <input 
-                        type="password" 
-                        placeholder="Confirm password" 
-                        value={confirmPassword} 
-                        onChange={(e) => setConfirmPassword(e.target.value)} 
-                        required
-                    />
-                    <button type="submit">Sign Up</button>
-                </form>
-                <div className="login-link">
-                    Already have an account? <a href="/login">Login</a>
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Email:
+        <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+      </label>
+      <br />
+      <label>
+        Password:
+        <input type="password" value={password1} onChange={(event) => setPassword1(event.target.value)} required />
+      </label>
+      <br />
+      <label>
+        Confirm Password:
+        <input type="password" value={password2} onChange={(event) => setPassword2(event.target.value)} required />
+      </label>
+      <br />
+      <label>
+        First Name:
+        <input type="text" value={firstName} onChange={(event) => setFirstName(event.target.value)} required />
+      </label>
+      <br />
+      <label>
+        Last Name:
+        <input type="text" value={lastName} onChange={(event) => setLastName(event.target.value)} required />
+      </label>
+      <br />
+      <button type="submit">Sign Up</button>
+    </form>
+  );
 }
 
-export default SignupPage;
+export default Signup;
