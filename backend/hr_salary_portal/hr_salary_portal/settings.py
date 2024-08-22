@@ -77,9 +77,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 ROOT_URLCONF = 'hr_salary_portal.urls'
@@ -112,9 +110,19 @@ DATABASES = {
         'NAME': 'hr_salary_portal_db',
         'CLIENT': {
             'host': 'mongodb://localhost:27017',
-        }
+         }
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'hr_salary_portal_db',
+#         'CLIENT': {
+#             'host': 'mongodb://localhost:27017',
+#         }
+#     }
+# }
 
 
 # Password validation
