@@ -5,7 +5,7 @@ from django.contrib.sessions.backends.base import SessionBase, CreateError
 from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import force_str
 from django.utils.timezone import now
-from .models import Session  # Import the Session model defined above
+from .models import Session  
 
 class MongoSessionStore(SessionBase):
     """

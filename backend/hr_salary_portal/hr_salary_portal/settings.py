@@ -80,13 +80,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-#CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # or wherever your frontend is running
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",  # or wherever your frontend is running
+# ]
 
 
 ROOT_URLCONF = 'hr_salary_portal.urls'
@@ -107,7 +108,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hr_salary_portal.wsgi.application'
+#WSGI_APPLICATION = 'hr_salary_portal.wsgi.application'
 
 
 # Database

@@ -32,6 +32,7 @@ from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.templatetags.static import static
 
 class UploadFileView(APIView):
     permission_classes = []  
