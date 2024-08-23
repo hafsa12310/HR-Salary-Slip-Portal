@@ -27,7 +27,9 @@ SECRET_KEY = 'django-insecure-()yh&do+0oz)axek_c-gy9+(7ka0%hzy1a5xwd_)3pgv%2!(o+
 DEBUG = True
 
 #ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['payroll.onrender.com', 'payroll.com']
+#ALLOWED_HOSTS = ['payroll.onrender.com', 'payroll.com']
+ALLOWED_HOSTS = ['*']
+
 
 
 
