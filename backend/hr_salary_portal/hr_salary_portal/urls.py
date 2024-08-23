@@ -17,20 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from payroll.views import UploadFileView, GeneratePDFView, DownloadPayslipsView, SendPayslipsView, landing_page_view
-from django.urls import path
-from payroll.views import login_view, logout_view, signup_view
+from django.urls import path, include
+
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
 
-    path('api/login/', login_view),
-    path('api/logout/', logout_view),
-    path('api/signup/', signup_view),
 
 
     path('', landing_page_view, name='landing-page'),
+    path('', include('payroll.urls')),
     
     path('upload/', UploadFileView.as_view(), name='upload_file'), 
     path('generate-pdf/', GeneratePDFView.as_view(), name='generate_pdf'),

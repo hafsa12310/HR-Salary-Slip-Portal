@@ -72,3 +72,39 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
+
+from mongoengine import Document, StringField, DateTimeField
+from django.utils import timezone
+
+class Session(Document):
+    session_key = StringField(required=True, unique=True)
+    session_data = StringField(required=True)
+    expire_date = DateTimeField(required=True)
+
+    meta = {
+        'collection': 'django_sessions',  # Name of the collection in MongoDB
+        'indexes': [
+            'expire_date',
+        ]
+    }
+
+
+from mongoengine import Document, StringField, EmailField, BooleanField
+from django.contrib.auth.hashers import make_password, check_password
+
+class MyUser(Document):
+    email = EmailField(required=True, unique=True)
+    password = StringField(required=True)
+    is_active = BooleanField(default=True)
+    is_admin = BooleanField(default=False)
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self.save()
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
+
+    def __str__(self):
+        return self.email

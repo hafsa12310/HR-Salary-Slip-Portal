@@ -224,42 +224,103 @@ def landing_page_view(request):
     return render(request, 'landing.html')
 
 
-from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
+# from django.contrib.auth import authenticate, login, logout
+# from django.http import JsonResponse
+# from django.views.decorators.csrf import csrf_exempt
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from rest_framework import status
+# from .models import User
+# from .serializer import UserSerializer
+
+# @api_view(['POST'])
+# @csrf_exempt
+# def login_view(request):
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+#     user = authenticate(request, email=email, password=password)
+#     if user is not None:
+#         login(request, user)
+#         serializer = UserSerializer(user)
+#         return Response(serializer.data)
+#     else:
+#         return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
+
+# @api_view(['POST'])
+# @csrf_exempt
+# def logout_view(request):
+#     logout(request)
+#     return Response({'success': 'Logged out successfully'})
+
+# @api_view(['POST'])
+# @csrf_exempt
+# def signup_view(request):
+#     serializer = UserSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     else:
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+# myapp/views.py
+
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User
-from .serializer import UserSerializer
+from .models import MyUser
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
-@api_view(['POST'])
-@csrf_exempt
-def login_view(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-    user = authenticate(request, email=email, password=password)
-    if user is not None:
-        login(request, user)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-    else:
-        return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
+class RegisterView(APIView):
+    permission_classes = []  # Ensure no authentication is required for registration
 
-@api_view(['POST'])
-@csrf_exempt
-def logout_view(request):
-    logout(request)
-    return Response({'success': 'Logged out successfully'})
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
 
-@api_view(['POST'])
-@csrf_exempt
-def signup_view(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            validate_email(email)
+        except ValidationError:
+            return Response({"error": "Invalid email format"}, status=status.HTTP_400_BAD_REQUEST)
 
+        if len(password) < 8:
+            return Response({"error": "Password must be at least 8 characters long"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if MyUser.objects(email=email).first():
+            return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = MyUser(email=email)
+        user.set_password(password)
+        user.save()
+
+        return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import MyUser
+
+class LoginView(APIView):
+    permission_classes = []  # Ensure no authentication is required
+    authentication_classes = []  # Disable authentication for this view
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        user = MyUser.objects(email=email).first()
+
+        if user and user.check_password(password):
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
