@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-()yh&do+0oz)axek_c-gy9+(7ka0%hzy1a5xwd_)3pgv%2!(o+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['payroll.onrender.com', 'payroll.com']
 
 
 
@@ -198,3 +199,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
 }
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
