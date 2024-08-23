@@ -58,3 +58,7 @@ Follow these steps to start the project:
     npm run start
     ```
 
+## API Documentation
+
+Detailed documentation of the APIs is available on Postman. You can access it [here](https://documenter.getpostman.com/view/37853209/2sAXjF7uSn).
+
