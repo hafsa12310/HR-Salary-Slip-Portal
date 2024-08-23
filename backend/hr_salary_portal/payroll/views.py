@@ -34,6 +34,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 class UploadFileView(APIView):
+    permission_classes = []  
+    authentication_classes = []
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
@@ -91,6 +93,8 @@ class UploadFileView(APIView):
 
 
 class GeneratePDFView(APIView):
+    permission_classes = []  
+    authentication_classes = []
     def get(self, request, *args, **kwargs):
         try:
             # Get all employees from MongoDB
@@ -109,6 +113,8 @@ class GeneratePDFView(APIView):
 
 
 def generate_salary_slip_pdf(employee_id):
+    permission_classes = []  
+    authentication_classes = []
     directory = 'PaySlips'
     if not os.path.exists(directory):
         try:
@@ -130,7 +136,7 @@ def generate_salary_slip_pdf(employee_id):
     c = canvas.Canvas(file_path, pagesize=letter)
     width, height = letter
 
-    logo_path = "C:/Users/CC/Desktop/Unikrew Project/HR-Salary-Slip-Portal/backend/hr_salary_portal/logo.png"  # Ensure this path is correct
+    logo_path = "C:/Users/sarmaaya/Desktop/new/HR-Salary-Slip-Portal/backend/hr_salary_portal/logo.png"
     draw_payslip_layout(c, employee, width, height, logo_path)
 
     c.save()
@@ -139,6 +145,8 @@ def generate_salary_slip_pdf(employee_id):
 
 
 class DownloadPayslipsView(APIView):
+    permission_classes = []  
+    authentication_classes = []
     def get(self, request, *args, **kwargs):
         try:
             directory = 'PaySlips'
@@ -164,6 +172,8 @@ class DownloadPayslipsView(APIView):
 
 
 class SendPayslipsView(APIView):
+    permission_classes = []  
+    authentication_classes = []
     def post(self, request, *args, **kwargs):
         try:
             employees = list(db['payroll_employee'].find())
@@ -224,47 +234,6 @@ def landing_page_view(request):
     return render(request, 'landing.html')
 
 
-# from django.contrib.auth import authenticate, login, logout
-# from django.http import JsonResponse
-# from django.views.decorators.csrf import csrf_exempt
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-# from rest_framework import status
-# from .models import User
-# from .serializer import UserSerializer
-
-# @api_view(['POST'])
-# @csrf_exempt
-# def login_view(request):
-#     email = request.data.get('email')
-#     password = request.data.get('password')
-#     user = authenticate(request, email=email, password=password)
-#     if user is not None:
-#         login(request, user)
-#         serializer = UserSerializer(user)
-#         return Response(serializer.data)
-#     else:
-#         return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
-
-# @api_view(['POST'])
-# @csrf_exempt
-# def logout_view(request):
-#     logout(request)
-#     return Response({'success': 'Logged out successfully'})
-
-# @api_view(['POST'])
-# @csrf_exempt
-# def signup_view(request):
-#     serializer = UserSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     else:
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
 
 # myapp/views.py
 
@@ -276,7 +245,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 class RegisterView(APIView):
-    permission_classes = []  # Ensure no authentication is required for registration
+    permission_classes = [] 
 
     def post(self, request):
         email = request.data.get('email')
@@ -306,8 +275,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import MyUser
 
 class LoginView(APIView):
-    permission_classes = []  # Ensure no authentication is required
-    authentication_classes = []  # Disable authentication for this view
+    permission_classes = []  
+    authentication_classes = []  
 
     def post(self, request):
         email = request.data.get('email')
