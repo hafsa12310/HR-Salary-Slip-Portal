@@ -1,68 +1,84 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './LoginPage.css'; // Ensure the CSS is aligned with the SignupPage.css
 
 function Login({ setAuthTokens }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false); // Added loading state
-    const navigate = useNavigate(); // Added navigation for redirection
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setLoading(true); // Start loading
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setError('');
+    setLoading(true);
 
-        try {
-            const response = await axios.post('http://localhost:8000/login/', {
-                email,
-                password
-            });
+    try {
+      const response = await fetch('http://localhost:8000/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-            console.log('Response Data:', response.data); // Log the response data
+      if (response.ok) {
+        const data = await response.json();
+        setAuthTokens(data); // Store tokens after successful login
+        navigate('/home'); // Redirect to home after successful login
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Invalid credentials');
+      }
+    } catch (err) {
+      setError('An error occurred: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            const { access, refresh } = response.data;
-
-            if (access && refresh) {
-                console.log('Saving Tokens:', { access, refresh }); // Log tokens before saving
-                localStorage.setItem('authTokens', JSON.stringify({ access, refresh }));
-                console.log('Tokens saved to localStorage:', localStorage.getItem('authTokens')); // Verify storage
-                setAuthTokens({ access, refresh });
-                setError('');
-                navigate('/home'); // Redirect to home page upon successful login
-            } else {
-                setError('Invalid credentials'); // Handle missing tokens
-            }
-        } catch (err) {
-            console.error('Error Response:', err.response); // Log the error response
-            setError('Invalid credentials');
-        } finally {
-            setLoading(false); // Stop loading
-        }
-    };
-
-    return (
-        <form onSubmit={handleLogin}>
-            <input
+  return (
+    <div className="wrapper">
+      <div className="title-text">
+        <div className="title login">Login Form</div>
+      </div>
+      <div className="form-container">
+        <div className="form-inner">
+          <form onSubmit={handleLogin} className="login">
+            <div className="field">
+              <input
                 type="email"
-                placeholder="Email"
+                placeholder="Email Address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
                 required
-            />
-            <input
+              />
+            </div>
+            <div className="field">
+              <input
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(event) => setPassword(event.target.value)}
                 required
-            />
-            <button type="submit" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-            </button>
-            {error && <p>{error}</p>}
-        </form>
-    );
+              />
+            </div>
+            <div className="pass-link"><a href="#">Forgot password?</a></div>
+            <div className="field btn">
+              <div className="btn-layer"></div>
+              <input type="submit" value={loading ? 'Logging in...' : 'Login'} disabled={loading} />
+            </div>
+            {error && <p className="error-message">{error}</p>}
+            <div className="signup-link">Not a member? <a href="/signup">Signup now</a></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default Login;

@@ -60,16 +60,22 @@ function HomePage() {
     };
 
     return (
-        <div>
-            <h1>Home Page</h1>
-            <form onSubmit={handleFileUpload}>
-                <input type="file" required />
-                <button type="submit">Upload File</button>
-            </form>
-            <button onClick={handleGeneratePDF}>Generate PDF</button>
-            <button onClick={handleDownloadPayslips}>Download Payslips</button>
-            <button onClick={handleSendPayslips}>Send Payslips</button>
-            {notification.message && <Notification message={notification.message} type={notification.type} />}
+        <div className="home-page">
+            <div className="home-container">
+                <h2>Home Page</h2>
+                <form onSubmit={handleFileUpload}>
+                    <input type="file" />
+                    <button type="submit">Upload File</button>
+                </form>
+                <div className="action-buttons">
+                    <button type="button" onClick={handleGeneratePDF}>Generate PDF</button>
+                    <button type="button" onClick={handleDownloadPayslips}>Download Payslips</button>
+                    <button type="button" onClick={handleSendPayslips}>Send Payslips</button>
+                </div>
+                {notification.message && (
+                    <Notification message={notification.message} type={notification.type} />
+                )}
+            </div>
         </div>
     );
 }
