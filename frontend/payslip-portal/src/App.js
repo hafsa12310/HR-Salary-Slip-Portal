@@ -22,10 +22,10 @@
               <Route path="/login" element={<LoginPage setAuthTokens={setAuthTokens} />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/home" element={authTokens ? <HomePage /> : <Navigate to="/login" />} />              
-              <Route path="/upload" element={<PrivateRoute element={<HomePage />} />} />  
-              <Route path="/generate-pdf" element={<PrivateRoute element={<HomePage />} />} />  
-              <Route path="/download-payslips" element={<PrivateRoute element={<HomePage />} />} />  
-              <Route path="/send-payslips" element={<PrivateRoute element={<HomePage />} />} />  
+              <Route path="/upload" />  
+              <Route path="/generate-pdf" element={<HomePage />} />
+              <Route path="/download-payslips" element={<HomePage />} /> 
+              <Route path="/send-payslips"  element={<HomePage />} />  
             </Routes>
           </div>
         </Router>
