@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/apiService'; // Import the configured Axios instance
 import Notification from './Notification';
 import './HomePage.css';
 
@@ -13,7 +13,7 @@ function HomePage() {
         formData.append('file', fileInput.files[0]);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/upload/', formData, {
+            const response = await api.post('http://127.0.0.1:8000/upload/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -26,7 +26,7 @@ function HomePage() {
 
     const handleGeneratePDF = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/generate-pdf/');
+            const response = await api.get('http://127.0.0.1:8000/generate-pdf/');
             setNotification({ message: response.data.message, type: 'success' });
         } catch (error) {
             setNotification({ message: 'Failed to generate PDFs', type: 'error' });
@@ -35,7 +35,7 @@ function HomePage() {
 
     const handleDownloadPayslips = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/download-payslips/', {
+            const response = await api.get('http://127.0.0.1:8000/download-payslips/', {
                 responseType: 'blob',
             });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -52,7 +52,7 @@ function HomePage() {
 
     const handleSendPayslips = async () => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/send-payslips/');
+            const response = await api.post('http://127.0.0.1:8000/send-payslips/');
             setNotification({ message: response.data.message, type: 'success' });
         } catch (error) {
             setNotification({ message: 'Failed to send payslips', type: 'error' });
@@ -60,36 +60,16 @@ function HomePage() {
     };
 
     return (
-        <div className="home-page">
-            <Notification
-                message={notification.message}
-                type={notification.type}
-                onClose={() => setNotification({ message: '', type: '' })}
-            />
-            <header className="header">
-                <h1>Dashboard</h1>
-            </header>
-            <div className="content">
-                <section className="section">
-                    <h2>Upload Payroll Files</h2>
-                    <form onSubmit={handleFileUpload}>
-                        <input type="file" />
-                        <button type="submit" className="btn btn-primary">Upload</button>
-                    </form>
-                </section>
-                <section className="section">
-                    <h2>Generate PDF Reports</h2>
-                    <button onClick={handleGeneratePDF} className="btn btn-primary">Generate PDFs</button>
-                </section>
-                <section className="section">
-                    <h2>Download Payslips</h2>
-                    <button onClick={handleDownloadPayslips} className="btn btn-primary">Download</button>
-                </section>
-                <section className="section">
-                    <h2>Send Payslips via Email</h2>
-                    <button onClick={handleSendPayslips} className="btn btn-primary">Send Emails</button>
-                </section>
-            </div>
+        <div>
+            <h1>Home Page</h1>
+            <form onSubmit={handleFileUpload}>
+                <input type="file" required />
+                <button type="submit">Upload File</button>
+            </form>
+            <button onClick={handleGeneratePDF}>Generate PDF</button>
+            <button onClick={handleDownloadPayslips}>Download Payslips</button>
+            <button onClick={handleSendPayslips}>Send Payslips</button>
+            {notification.message && <Notification message={notification.message} type={notification.type} />}
         </div>
     );
 }
