@@ -24,11 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-()yh&do+0oz)axek_c-gy9+(7ka0%hzy1a5xwd_)3pgv%2!(o+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 #ALLOWED_HOSTS = []
 #ALLOWED_HOSTS = ['payroll.onrender.com', 'payroll.com']
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['payroll.onrender.com']
 
 
 
