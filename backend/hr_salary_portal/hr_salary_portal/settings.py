@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+
 #SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, using database for session storage
 SESSION_ENGINE = 'payroll.mongo_sessions'
 
