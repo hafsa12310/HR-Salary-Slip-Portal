@@ -26,9 +26,9 @@ SECRET_KEY = 'django-insecure-()yh&do+0oz)axek_c-gy9+(7ka0%hzy1a5xwd_)3pgv%2!(o+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-#ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 #ALLOWED_HOSTS = ['payroll.onrender.com', 'payroll.com']
-ALLOWED_HOSTS = ['hr-salary-slip-portal.onrender.com']
+#ALLOWED_HOSTS = ['hr-salary-slip-portal.onrender.com']
 
 
 
@@ -158,7 +158,12 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
 
 
 

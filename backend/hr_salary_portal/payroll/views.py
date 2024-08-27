@@ -114,8 +114,6 @@ class GeneratePDFView(APIView):
 
 
 def generate_salary_slip_pdf(employee_id):
-    permission_classes = []  
-    authentication_classes = []
     directory = 'PaySlips'
     if not os.path.exists(directory):
         try:
@@ -137,13 +135,13 @@ def generate_salary_slip_pdf(employee_id):
     c = canvas.Canvas(file_path, pagesize=letter)
     width, height = letter
 
-    logo_path = "C:/Users/sarmaaya/Desktop/new/HR-Salary-Slip-Portal/backend/hr_salary_portal/logo.png"
+    # Dynamically get the logo path
+    logo_path = os.path.join(settings.STATIC_ROOT, 'payroll/logo.png')
     draw_payslip_layout(c, employee, width, height, logo_path)
 
     c.save()
 
     print(f"Generated PDF for employee {employee_id} at {file_path}")
-
 
 class DownloadPayslipsView(APIView):
     permission_classes = []  
