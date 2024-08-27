@@ -7,9 +7,9 @@ from django.utils.encoding import force_str
 from django.utils.timezone import now
 from .models import Session  
 
-class MongoSessionBase(SessionBase):
+class MongoSessionStore(SessionBase):
     """
-    Implements MongoDB session base using MongoEngine.
+    Implements MongoDB session store using MongoEngine.
     """
 
     def load(self):
