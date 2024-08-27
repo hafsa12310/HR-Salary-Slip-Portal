@@ -33,6 +33,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.templatetags.static import static
+import json
+
+
 
 class UploadFileView(APIView):
     permission_classes = []  
@@ -112,6 +115,10 @@ class GeneratePDFView(APIView):
             print(f"Exception occurred: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+config_file_path = os.path.join(os.getcwd(),'hr_salary_portal' , 'config.json')
+
+with open(config_file_path) as config_file:
+    config = json.load(config_file)
 
 def generate_salary_slip_pdf(employee_id):
     directory = 'PaySlips'
@@ -135,7 +142,8 @@ def generate_salary_slip_pdf(employee_id):
     c = canvas.Canvas(file_path, pagesize=letter)
     width, height = letter
     
-
+    logo_path = config.get('logo_path', 'static/images/logo.png')
+    draw_payslip_layout(c, employee, width, height, logo_path)
 
     c.save()
 

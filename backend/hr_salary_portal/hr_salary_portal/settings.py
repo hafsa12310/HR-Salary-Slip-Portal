@@ -27,11 +27,6 @@ SECRET_KEY = 'django-insecure-()yh&do+0oz)axek_c-gy9+(7ka0%hzy1a5xwd_)3pgv%2!(o+
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-#ALLOWED_HOSTS = ['payroll.onrender.com', 'payroll.com']
-#ALLOWED_HOSTS = ['hr-salary-slip-portal.onrender.com']
-
-
-
 
 # settings.py
 
@@ -86,10 +81,6 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",  # or wherever your frontend is running
-# ]
-
 
 ROOT_URLCONF = 'hr_salary_portal.urls'
 
@@ -125,15 +116,7 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'djongo',
-#         'NAME': 'hr_salary_portal_db',
-#         'CLIENT': {
-#             'host': 'mongodb://localhost:27017',
-#         }
-#     }
-# }
+
 
 
 # Password validation
@@ -157,12 +140,6 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
 
 
 
@@ -182,7 +159,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -213,6 +195,5 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 }
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 

@@ -1,12 +1,19 @@
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import Table, TableStyle
+from reportlab.lib.utils import ImageReader
 
 
-def draw_payslip_layout(c, employee, width, height):
+def draw_payslip_layout(c, employee, width, height, logo_path):
     c.setStrokeColor(colors.black)
     c.setLineWidth(2)
     c.rect(0.5*inch, 0.5*inch, width - 1*inch, height - 1*inch, stroke=1, fill=0)
+
+    if logo_path:
+        logo = ImageReader(logo_path)
+        logo_width = 1.5 * inch
+        logo_height = 1.0 * inch
+        c.drawImage(logo, inch, height - inch - logo_height, width=logo_width, height=logo_height)
 
     c.setFont("Helvetica-Bold", 12)
     c.drawRightString(width - inch, height - 1.2*inch, "Unikrew Solutions")

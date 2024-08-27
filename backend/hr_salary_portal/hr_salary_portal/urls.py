@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from payroll.views import UploadFileView, GeneratePDFView, DownloadPayslipsView, SendPayslipsView, landing_page_view
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 
@@ -34,4 +36,4 @@ urlpatterns = [
     path('generate-pdf/', GeneratePDFView.as_view(), name='generate_pdf'),
     path('download-payslips/', DownloadPayslipsView.as_view(), name='download_payslips'),  
     path('send-payslips/', SendPayslipsView.as_view(), name='send_payslips'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
