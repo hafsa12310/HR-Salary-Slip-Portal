@@ -108,3 +108,4 @@ class MyUser(Document):
 
     def __str__(self):
         return self.email
+

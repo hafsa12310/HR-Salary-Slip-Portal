@@ -28,7 +28,7 @@ DEBUG = False
 
 #ALLOWED_HOSTS = []
 #ALLOWED_HOSTS = ['payroll.onrender.com', 'payroll.com']
-ALLOWED_HOSTS = ['payroll.onrender.com']
+ALLOWED_HOSTS = ['hr-salary-slip-portal.onrender.com']
 
 
 
