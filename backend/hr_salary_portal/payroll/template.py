@@ -3,13 +3,10 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Table, TableStyle
 
 
-def draw_payslip_layout(c, employee, width, height, logo_path):
+def draw_payslip_layout(c, employee, width, height):
     c.setStrokeColor(colors.black)
     c.setLineWidth(2)
     c.rect(0.5*inch, 0.5*inch, width - 1*inch, height - 1*inch, stroke=1, fill=0)
-
-    logo_height = height - 2.2*inch
-    c.drawImage(logo_path, inch, logo_height, width=2.5*inch, height=1*inch)
 
     c.setFont("Helvetica-Bold", 12)
     c.drawRightString(width - inch, height - 1.2*inch, "Unikrew Solutions")

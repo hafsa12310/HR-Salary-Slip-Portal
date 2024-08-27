@@ -134,10 +134,8 @@ def generate_salary_slip_pdf(employee_id):
 
     c = canvas.Canvas(file_path, pagesize=letter)
     width, height = letter
+    
 
-    # Dynamically get the logo path
-    logo_path = os.path.join(settings.STATIC_ROOT, 'payroll/logo.png')
-    draw_payslip_layout(c, employee, width, height, logo_path)
 
     c.save()
 
